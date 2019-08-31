@@ -1,6 +1,6 @@
 from typing import Optional, List, Dict
 
-from lib.exceptions import KeyOnNonDictException, EllipsisException
+from lib.exceptions import KeyOnNonDictException, EllipsisException, GeneralException
 
 
 class Utils:
@@ -21,7 +21,7 @@ class Utils:
 
         try:
             if path is None:
-                raise Exception
+                raise GeneralException
 
             ltry = Utils.map_path_to_string(path)
 
@@ -31,7 +31,7 @@ class Utils:
                     "dictionary and cannot be treated as dict" \
                 .format(ltry, lcurrent)
 
-        except Exception:
+        except GeneralException:
             pass
 
         exc.msg = "[Element Error] You are trying to use non-dictionary " \
@@ -78,7 +78,7 @@ class Utils:
                 if pa is not None:
                     return pa
 
-
+    @staticmethod
     def get_by_path(idict, key_path):
         dictval = idict
         for k in key_path:
