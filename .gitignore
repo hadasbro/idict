@@ -7,3 +7,4 @@ build
 *.swp
 venv/
 .idea/
+.mypy_cache/

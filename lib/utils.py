@@ -1,6 +1,6 @@
 from typing import Optional, List, Dict
 
-from lib.exceptions import KeyOnNonDictException, EllipsisException, GeneralException
+from lib.exceptions import KeyOnNonDictException, EllipsisException, GeneralException, ValueNotAllowedException
 
 
 class Utils:
@@ -99,3 +99,9 @@ class Utils:
             dictval = dictval.get(k)
 
         return dictval
+
+    @staticmethod
+    def verify_overwritting_dect_type(path_value, key, value) -> bool:
+        if key in path_value and isinstance(path_value[key], dict) and not isinstance(value, dict):
+            raise ValueNotAllowedException(path_value, key, value)
+        return True

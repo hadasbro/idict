@@ -1,8 +1,9 @@
 import collections
 from enum import Enum
-from typing import Any, Dict, List, Union
+from typing import Any, Dict, List, Union, Optional
 
-from lib.exceptions import EllipsisException, KeyOnNonDictException, KeyNotAllowedException, MandatoryKeyValueException
+from lib.exceptions import EllipsisException, KeyOnNonDictException, KeyNotAllowedException, MandatoryKeyValueException, \
+    ValueNotAllowedException
 from lib.utils import Utils
 
 
@@ -25,17 +26,20 @@ class Idict(collections.defaultdict):
 
     prev_id = 0
 
-    def __init__(self, kargs, options: Dict[str, Union[OPT, bool]] = {}, deep=0):
+    def __init__(self, kargs, options: Optional[Dict[str, Union[OPT, bool]]] = None, deep=0):
 
-        self.options = {**Idict.default_options, **options}
+        opt = options if options is not None else {}
+        self.options = {**Idict.default_options, **opt}
 
         self.kargs = kargs
 
         self.block_key = None
 
         collections.defaultdict.__init__(
-            self, lambda: self.__class__(kargs, options, deep)._construct(id(self), self.locked_keys, self.dependencies,
-                                                                          self.id_key, self.options)
+            self,
+            lambda: self.
+                __class__(kargs, options, deep).
+                _construct(id(self), self.locked_keys, self.dependencies, self.id_key, self.options)
         )
 
         if deep == 0:
@@ -47,18 +51,18 @@ class Idict(collections.defaultdict):
             self.__init_pattern()
 
     def _construct(self,
-                   prev_id=0,
-                   locked_keys: Dict[int, List[Any]] = {},
-                   dependencies: Dict[int, int] = {},
-                   id_key: Dict[str, Any] = {},
-                   options: Dict[str, Union[OPT, bool]] = {}
+                   prev_id,
+                   locked_keys: Dict[int, List[Any]],
+                   dependencies: Dict[int, int],
+                   id_key: Dict[int, Any],
+                   options: Dict[str, Union[OPT, bool]]
                    ):
 
         self.options = options
 
         self.dependencies: Dict[int, int] = dependencies
 
-        self.id_key: Dict[str, Any] = id_key
+        self.id_key: Dict[int, Any] = id_key
 
         self.prev_id = prev_id
 
@@ -67,7 +71,7 @@ class Idict(collections.defaultdict):
         return self
 
     def __init_pattern(self):
-        Idict.__recucrive_init(self.kargs, self)
+        Idict.__recucrive_init(self.kargs, self.options, self)
         pass
 
     def __setitem__(self, k, v) -> None:
@@ -76,9 +80,10 @@ class Idict(collections.defaultdict):
 
         if not isinstance(v, Idict):
 
+            element_path = []
+
             try:
                 element_path = Utils.find_xpath(self.dependencies, self.prev_id)
-
                 try:
                     element_path = list(map(lambda x: self.id_key[x], element_path))
                     element_path.append(k)
@@ -96,7 +101,13 @@ class Idict(collections.defaultdict):
                     raise EllipsisException(0)
 
                 # throws EllipsisException
-                Utils.get_by_path(self.kargs, element_path)
+                path_value = Utils.get_by_path(self.kargs, element_path)
+
+                # throws ValueNotAllowedException
+                Utils.verify_overwritting_dect_type(path_value, k, v)
+
+            except ValueNotAllowedException as ex:
+                raise ex
 
             except EllipsisException:
 
@@ -158,7 +169,10 @@ class Idict(collections.defaultdict):
 
             try:
 
-                Utils.get_by_path(self.kargs, element_path)
+                path_value = Utils.get_by_path(self.kargs, element_path)
+
+                # throws ValueNotAllowedException
+                Utils.verify_overwritting_dect_type(path_value, k, v)
 
                 if len(element_path) == 1 and element_path[0] == 0 and k not in self.kargs.keys():
                     '''
@@ -166,13 +180,16 @@ class Idict(collections.defaultdict):
                     '''
                     raise EllipsisException(0)
 
+            except ValueNotAllowedException as ex:
+                raise ex
+
             except EllipsisException:
                 if self.options["missing_keys"] is self.OPT.KEY_ALLOW:
                     pass
                 elif self.options["missing_keys"] is self.OPT.KEY_IGNORE:
                     return
                 elif self.options["missing_keys"] is self.OPT.KEY_THROW:
-                    raise KeyNotAllowedException(k, element_path)
+                    raise KeyNotAllowedException(k, lambda: Utils.map_path_to_string(element_path))
 
             self.id_key[ids] = k
 
@@ -190,7 +207,7 @@ class Idict(collections.defaultdict):
         return "container:" + str(id(self)) + " dict: " + str(dict(self))
 
     @staticmethod
-    def __recucrive_init(pattern: Dict[str, Any], root: 'Idict'):
+    def __recucrive_init(pattern: Dict[str, Any], options: Dict[str, Union[OPT, bool]], root: 'Idict'):
         """
         __recucrive_init
 
@@ -205,10 +222,12 @@ class Idict(collections.defaultdict):
         """
         for i in pattern:
             if isinstance(pattern[i], dict):
-                # root[i] = {}
                 if i not in root:
-                    root[i] = {}
-                Idict.__recucrive_init(pattern[i], root[i])
+                    root[i] = Idict(pattern[i], options)
+                    Idict.__recucrive_init(pattern[i], options, root[i])
+                    pass
+                else:
+                    Idict.__recucrive_init(pattern[i], options, root[i])
             else:
                 root[i] = pattern[i]
 

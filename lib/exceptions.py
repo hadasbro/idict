@@ -42,7 +42,7 @@ class KeyNotAllowedException(Exception):
             if path_builder is None:
                 raise GeneralException
             ltry = path_builder()
-        except GeneralException:
+        except TypeError:
             pass
 
         if ltry == "[0]":
@@ -51,5 +51,15 @@ class KeyNotAllowedException(Exception):
         message: str = "[Key Error] You are trying to set value for key <{}> " \
                        "for your Idict <your_dict:Idict>{} but this key is disallowed " \
                        "and doesnt exist in the provided interface".format(key, ltry)
+
+        super().__init__(message)
+
+
+class ValueNotAllowedException(Exception):
+
+    def __init__(self, path_value, key, value):
+        message: str = "[Value Error] Trying to set value <{}> for object <your_dict:Idict>, key <{}> " \
+                       "but in provided interface there is a dictionary under this key - " \
+                       "<interface>{}. You cannot change expected objects structure".format(value, key, path_value)
 
         super().__init__(message)
