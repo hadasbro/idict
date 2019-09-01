@@ -1,4 +1,4 @@
-from typing import Optional, List, Dict, Union, Tuple
+from typing import Optional, List, Dict, Union, Tuple, Any
 
 from lib import KT, KV
 from lib.exceptions import KeyOnNonDictException, EllipsisException, GeneralException, ValueNotAllowedException
@@ -48,12 +48,12 @@ class Utils:
 
         acum_result: List[int] = []
 
-        def find_recursively(acumi: Dict[int, int], el: int) -> Union[Dict[int, int], int]:
+        def find_recursively(acumi: Dict[int, int], el: int) -> Any:
             try:
-                al = acumi[el]
+                al: Any = acumi[el]
                 if al > 0:
                     acum_result.append(al)
-                    al = find_recursively(acumi, al)
+                    find_recursively(acumi, al)
             except KeyError:
                 return 0
             return al
@@ -69,7 +69,7 @@ class Utils:
             nested_dict: Dict[KT, KV],
             value: KV, apath: Tuple[KT, ...] = (),
             comparison_type: str = "="
-    ) -> Tuple[KT, ...]:
+    ) -> Union[Tuple[KT, ...], None]:
         for key, val in nested_dict.items():
             path = apath + (key,)
             if comparison_type == "is":
@@ -83,6 +83,7 @@ class Utils:
                 pa = Utils.find_element(val, value, path, comparison_type)
                 if pa is not None:
                     return pa
+        return None
 
     @staticmethod
     def get_by_path(idict: Dict[KT, KV], key_path) -> Union[Dict[KT, KV], KV]:

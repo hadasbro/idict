@@ -62,15 +62,15 @@ class Idict(collections.defaultdict):
                    options: Dict[str, Union[OPT, bool]]
                    ) -> 'Idict':
 
-        self.options: Dict[str, Union[Idict.OPT, bool]] = options
+        self.options = options
 
-        self.dependencies: Dict[int, int] = dependencies
+        self.dependencies = dependencies
 
-        self.id_key: Dict[int, KT] = id_key
+        self.id_key = id_key
 
-        self.prev_id: int = prev_id
+        self.prev_id = prev_id
 
-        self.locked_keys: Dict[int, List[Any]] = locked_keys
+        self.locked_keys = locked_keys
 
         return self
 
@@ -83,7 +83,7 @@ class Idict(collections.defaultdict):
 
         if not isinstance(v, Idict):
 
-            element_path = []
+            element_path: List[Any] = []
 
             try:
                 element_path: List[int] = Utils.find_xpath(self.dependencies, self.prev_id)
