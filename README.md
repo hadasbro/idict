@@ -259,7 +259,8 @@ my_dict.validate()
         
     ```
 
-#### See more
+
+## See more
 See `./tests` for more examples
 
 ---
