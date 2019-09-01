@@ -24,9 +24,9 @@ class Idict(collections.defaultdict):
 
     dependencies: Dict[int, int] = {}
 
-    locked_keys: Dict[int, List[str]] = {}
+    locked_keys: Dict[int, List[KT]] = {}
 
-    id_key: Dict[str, Any] = {}
+    id_key: Dict[int, KT] = {}
 
     prev_id = 0
 
@@ -56,19 +56,19 @@ class Idict(collections.defaultdict):
 
     def _construct(self,
                    prev_id: int,
-                   locked_keys: Dict[int, List[str]],
+                   locked_keys: Dict[int, List[KT]],
                    dependencies: Dict[int, int],
-                   id_key: Dict[int, Any],
+                   id_key: Dict[int, KT],
                    options: Dict[str, Union[OPT, bool]]
                    ) -> 'Idict':
 
-        self.options = options
+        self.options: Dict[str, Union[Idict.OPT, bool]] = options
 
         self.dependencies: Dict[int, int] = dependencies
 
         self.id_key: Dict[int, KT] = id_key
 
-        self.prev_id = prev_id
+        self.prev_id: int = prev_id
 
         self.locked_keys: Dict[int, List[Any]] = locked_keys
 

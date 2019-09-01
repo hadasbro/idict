@@ -8,6 +8,7 @@ class Utils:
 
     @staticmethod
     def map_path_to_string(path: Optional[List[str]] = None) -> str:
+        path = path if path is not None else []
         return "".join(list(map(lambda el: "[{}]".format(str(el)), path)))
 
     @staticmethod
