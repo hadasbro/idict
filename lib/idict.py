@@ -18,7 +18,7 @@ class Idict(collections.defaultdict):
         THROW = 3
 
     default_options: Dict[str, Union[OPT, bool]] = {
-        "missing_keys": OPT.IGNORE,
+        "missing_keys": OPT.ALLOW,
         "ellipsis_as_mandatory": True
     }
 
