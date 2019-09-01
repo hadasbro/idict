@@ -43,6 +43,8 @@ my_dict = Idict(desired_default_structure, options)
 
 my_dict['a'] = 1
 
+print(repr(my_dict))
+# {'a': 1, 'c': None}
 ```
 
 #### Options
@@ -59,16 +61,18 @@ possible options: `Idict.OPT.`
 - `THROW` - throw an exception `KeyNotAllowedException` if someone tries to set key-value for unspecified key. 
 Throw an exception `ValueNotAllowedException` if someone tries to change specified key-value structure. 
 See example below.
-
-        my_dict = Idict({'a': {'aa': {'aaa': 1}}}, options={"missing_keys": Idict.OPT.THROW})
-        my_dict['a']['aa'] = 123
-        
-        '''
-        ValueNotAllowedException: 
-        [Value Error] Trying to set value <123> for object , key <aa> 
-        but in provided interface there is a dictionary under this key - {'aa': {'aaa': 1}}.
-        You cannot change expected objects structure
-        '''
+    
+    ```python
+    my_dict = Idict({'a': {'aa': {'aaa': 1}}}, options={"missing_keys": Idict.OPT.THROW})
+    my_dict['a']['aa'] = 123
+    
+    '''
+    ValueNotAllowedException: 
+    [Value Error] Trying to set value <123> for object , key <aa> 
+    but in provided interface there is a dictionary under this key - {'aa': {'aaa': 1}}.
+    You cannot change expected objects structure
+    '''
+    ```
 
 **[ ellipsis_as_mandatory ]** - [default = True] use Ellipsis (`...`) as a tag for mandatory keys.  
 If this option is settled to `True` then, upon validation, library will check if every key with `Ellipsis` value has new value settled. 
@@ -254,5 +258,8 @@ my_dict.validate()
     # {'a': None, 'b': {'bb1': None, 'bb2': 123}}
         
     ```
+
+#### See more
+See `./tests` for more examples
 
 ---
