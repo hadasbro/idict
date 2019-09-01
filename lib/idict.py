@@ -81,14 +81,15 @@ class Idict(collections.defaultdict):
 
         ids: int = id(self)
 
-        element_path_str: List[KT] = []
-
         if not isinstance(v, Idict):
+
+            element_path = []
+
             try:
-                element_path = Utils.find_xpath(self.dependencies, self.prev_id)
+                element_path: List[int] = Utils.find_xpath(self.dependencies, self.prev_id)
                 try:
-                    element_path_str = list(map(lambda x: self.id_key[x], element_path))
-                    element_path_str.append(k)
+                    element_path: List[KT] = list(map(lambda x: self.id_key[x], element_path))
+                    element_path.append(k)
                 except KeyError:
                     '''
                     key 0, root parent, just
@@ -96,14 +97,14 @@ class Idict(collections.defaultdict):
                     '''
                     pass
 
-                if len(element_path_str) == 1 and element_path_str[0] == 0 and k not in self.kargs.keys():
+                if len(element_path) == 1 and element_path[0] == 0 and k not in self.kargs.keys():
                     '''
                     root element is not available in the interface
                     '''
                     raise EllipsisException(0)
 
                 # throws EllipsisException
-                path_value: Union[Dict[KT, KV], KV] = Utils.get_by_path(self.kargs, element_path_str)
+                path_value: Union[Dict[KT, KV], KV] = Utils.get_by_path(self.kargs, element_path)
 
                 # throws ValueNotAllowedException
                 Utils.verify_overwritting_dect_type(path_value, k, v)
@@ -139,12 +140,12 @@ class Idict(collections.defaultdict):
                     to set a value for that key
                     '''
                     if self.options["missing_keys"] is self.OPT.THROW:
-                        raise KeyNotAllowedException(k, lambda: Utils.map_path_to_string(element_path_str))
+                        raise KeyNotAllowedException(k, lambda: Utils.map_path_to_string(element_path))
 
                     return
 
             except KeyOnNonDictException as kex:
-                raise Utils.humanize_dict_error(kex, element_path_str)
+                raise Utils.humanize_dict_error(kex, element_path)
 
         elif ids in self.locked_keys.keys() and k in self.locked_keys[ids]:
             '''
@@ -163,8 +164,8 @@ class Idict(collections.defaultdict):
             element_path = Utils.find_xpath(self.dependencies, self.prev_id)
 
             try:
-                element_path_str = list(map(lambda x: self.id_key[x], element_path))
-                element_path_str.append(k)
+                element_path: List[KT] = list(map(lambda x: self.id_key[x], element_path))
+                element_path.append(k)
             except KeyError:
                 '''
                 key 0, root parent, just
@@ -174,12 +175,12 @@ class Idict(collections.defaultdict):
 
             try:
 
-                path_value = Utils.get_by_path(self.kargs, element_path_str)
+                path_value = Utils.get_by_path(self.kargs, element_path)
 
                 # throws ValueNotAllowedException
                 Utils.verify_overwritting_dect_type(path_value, k, v)
 
-                if len(element_path_str) == 1 and element_path_str[0] == 0 and k not in self.kargs.keys():
+                if len(element_path) == 1 and element_path[0] == 0 and k not in self.kargs.keys():
                     '''
                     root element is not available in the interface
                     '''
@@ -197,7 +198,7 @@ class Idict(collections.defaultdict):
                 elif self.options["missing_keys"] is self.OPT.IGNORE:
                     return
                 elif self.options["missing_keys"] is self.OPT.THROW:
-                    raise KeyNotAllowedException(k, lambda: Utils.map_path_to_string(element_path_str))
+                    raise KeyNotAllowedException(k, lambda: Utils.map_path_to_string(element_path))
 
             self.id_key[ids] = k
 
