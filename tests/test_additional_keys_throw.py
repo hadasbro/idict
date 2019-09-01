@@ -4,7 +4,7 @@ from lib.exceptions import KeyNotAllowedException
 from lib.idict import Idict
 
 
-class TestDefaultKeysThrow(unittest.TestCase):
+class TestAdditionalKeysThrow(unittest.TestCase):
     dict1 = Idict({
         'a': None,
         'b': {
@@ -23,15 +23,14 @@ class TestDefaultKeysThrow(unittest.TestCase):
             },
         },
     }, {
-        "missing_keys": Idict.OPT.KEY_THROW,
-        "ellipsis_as_mandatory": True
+        "missing_keys": Idict.OPT.THROW
     })
 
     def test_non_existing_first_element(self):
         # non existing first element
         res = False
         try:
-            TestDefaultKeysThrow.dict1['non_existing'] = 1
+            TestAdditionalKeysThrow.dict1['non_existing'] = 1
         except KeyNotAllowedException as ex:
             correct_key = str(ex).find("<non_existing>")
             res = correct_key != -1
@@ -43,7 +42,7 @@ class TestDefaultKeysThrow(unittest.TestCase):
         # non existing first element and deeper element
         res = False
         try:
-            TestDefaultKeysThrow.dict1['non_existing2']['non_existing3'] = 1
+            TestAdditionalKeysThrow.dict1['non_existing2']['non_existing3'] = 1
         except KeyNotAllowedException as ex:
             correct_key = str(ex).find("<non_existing2>")
             res = correct_key != -1
@@ -54,7 +53,7 @@ class TestDefaultKeysThrow(unittest.TestCase):
         # non existing first element and deeper element
         res = False
         try:
-            TestDefaultKeysThrow.dict1['non_existing5']['non_existing3']['none_existing4'] = 1
+            TestAdditionalKeysThrow.dict1['non_existing5']['non_existing3']['none_existing4'] = 1
         except KeyNotAllowedException as ex:
             correct_key = str(ex).find("<non_existing5>")
             res = correct_key != -1
@@ -66,7 +65,7 @@ class TestDefaultKeysThrow(unittest.TestCase):
         res = False
 
         try:
-            TestDefaultKeysThrow.dict1['c']['non_existing8'] = 1
+            TestAdditionalKeysThrow.dict1['c']['non_existing8'] = 1
         except KeyNotAllowedException as ex:
             correct_key = str(ex).find("<non_existing8>")
             res = correct_key != -1
@@ -78,7 +77,7 @@ class TestDefaultKeysThrow(unittest.TestCase):
         res = False
 
         try:
-            TestDefaultKeysThrow.dict1['c']['cc1']['non_existing'] = 1
+            TestAdditionalKeysThrow.dict1['c']['cc1']['non_existing'] = 1
         except KeyNotAllowedException as ex:
             correct_key = str(ex).find("<non_existing>")
             res = correct_key != -1
@@ -90,7 +89,7 @@ class TestDefaultKeysThrow(unittest.TestCase):
         res = False
 
         try:
-            TestDefaultKeysThrow.dict1['c']['another_non_existing8']['ccc1'] = 1
+            TestAdditionalKeysThrow.dict1['c']['another_non_existing8']['ccc1'] = 1
         except KeyNotAllowedException as ex:
             correct_key = str(ex).find("<another_non_existing8>")
             res = correct_key != -1
@@ -102,7 +101,7 @@ class TestDefaultKeysThrow(unittest.TestCase):
         res = False
 
         try:
-            TestDefaultKeysThrow.dict1['c']['non_existing10']['non_existing11']['non_existing12']['non_existing13'] = 1
+            TestAdditionalKeysThrow.dict1['c']['non_existing10']['non_existing11']['non_existing12']['non_existing13'] = 1
         except KeyNotAllowedException as ex:
             correct_key = str(ex).find("<non_existing10>")
             res = correct_key != -1
@@ -115,7 +114,7 @@ class TestDefaultKeysThrow(unittest.TestCase):
 
         try:
             res = False
-            TestDefaultKeysThrow.dict1['c']['non_existing11']['c1']['ccc1']['non_existing13'] = 1
+            TestAdditionalKeysThrow.dict1['c']['non_existing11']['c1']['ccc1']['non_existing13'] = 1
         except KeyNotAllowedException as ex:
             correct_key = str(ex).find("<non_existing11>")
             res = correct_key != -1
@@ -126,7 +125,7 @@ class TestDefaultKeysThrow(unittest.TestCase):
         # non existing key in the middle of existing keys
         res = False
         try:
-            TestDefaultKeysThrow.dict1['c']['cc1']['non_existing15']['cccc1'] = 5
+            TestAdditionalKeysThrow.dict1['c']['cc1']['non_existing15']['cccc1'] = 5
         except KeyNotAllowedException as ex:
             correct_key = str(ex).find("<non_existing15>")
             res = correct_key != -1
