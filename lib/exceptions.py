@@ -13,28 +13,28 @@ class EllipsisException(Exception):
 
 class KeyOnNonDictException(Exception):
 
-    def __init__(self, key: str = None, msg: str = None):
+    def __init__(self, key: str = "", msg: str = "") -> None:
         self.key: str = key
         self.msg: str = msg
         super().__init__(key, msg)
 
-    def __str__(self):
+    def __str__(self) -> str:
         return self.msg
 
 
 class MandatoryKeyValueException(Exception):
 
-    def __init__(self, msg: str = None):
+    def __init__(self, msg: str = "") -> None:
         self.msg: str = msg
         super().__init__(msg)
 
-    def __str__(self):
+    def __str__(self) -> str:
         return self.msg
 
 
 class KeyNotAllowedException(Exception):
 
-    def __init__(self, key: str = "", path_builder: Optional[Callable[[List[Union[int, str]]], str]] = None):
+    def __init__(self, key: str = "", path_builder: Optional[Callable[[List[Union[int, str]]], str]] = None) -> None:
 
         ltry: str = ""
 
@@ -57,7 +57,7 @@ class KeyNotAllowedException(Exception):
 
 class ValueNotAllowedException(Exception):
 
-    def __init__(self, path_value, key, value):
+    def __init__(self, path_value, key, value) -> None:
         message: str = "[Value Error] Trying to set value <{}> for object <your_dict:Idict>, key <{}> " \
                        "but in provided interface there is a dictionary under this key - " \
                        "<interface>{}. You cannot change expected objects structure".format(value, key, path_value)

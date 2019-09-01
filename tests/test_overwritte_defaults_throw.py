@@ -22,8 +22,7 @@ class TestOverwritteDefault(unittest.TestCase):
             },
         },
     }, {
-        "missing_keys": Idict.OPT.KEY_THROW,
-        "ellipsis_as_mandatory": True
+        "missing_keys": Idict.OPT.THROW
     })
 
     pattern2 = {
@@ -42,7 +41,7 @@ class TestOverwritteDefault(unittest.TestCase):
     }
 
     opts = {
-        "missing_keys": Idict.OPT.KEY_THROW,
+        "missing_keys": Idict.OPT.THROW,
         "ellipsis_as_mandatory": True
     }
 

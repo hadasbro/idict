@@ -1,20 +1,24 @@
+import base64
 import collections
 from enum import Enum
 from typing import Any, Dict, List, Union, Optional
 
-from lib.exceptions import EllipsisException, KeyOnNonDictException, KeyNotAllowedException, MandatoryKeyValueException, \
+from lib import KT, KV
+from lib.exceptions import EllipsisException, KeyOnNonDictException, \
+    KeyNotAllowedException, MandatoryKeyValueException, \
     ValueNotAllowedException
 from lib.utils import Utils
 
 
 class Idict(collections.defaultdict):
+
     class OPT(Enum):
-        KEY_ALLOW = 1
-        KEY_IGNORE = 2
-        KEY_THROW = 3
+        ALLOW = 1
+        IGNORE = 2
+        THROW = 3
 
     default_options: Dict[str, Union[OPT, bool]] = {
-        "missing_keys": OPT.KEY_IGNORE,
+        "missing_keys": OPT.IGNORE,
         "ellipsis_as_mandatory": True
     }
 
@@ -26,7 +30,7 @@ class Idict(collections.defaultdict):
 
     prev_id = 0
 
-    def __init__(self, kargs, options: Optional[Dict[str, Union[OPT, bool]]] = None, deep=0):
+    def __init__(self, kargs: Dict[KT, KV], options: Optional[Dict[str, Union[OPT, bool]]] = None, deep=0):
 
         opt = options if options is not None else {}
         self.options = {**Idict.default_options, **opt}
@@ -101,24 +105,27 @@ class Idict(collections.defaultdict):
                     raise EllipsisException(0)
 
                 # throws EllipsisException
-                path_value = Utils.get_by_path(self.kargs, element_path)
+                path_value: Union[Dict[KT, KV], KV] = Utils.get_by_path(self.kargs, element_path)
 
                 # throws ValueNotAllowedException
                 Utils.verify_overwritting_dect_type(path_value, k, v)
 
             except ValueNotAllowedException as ex:
-                raise ex
+                if self.options["missing_keys"] is self.OPT.THROW:
+                    raise ex
+                elif self.options["missing_keys"] is self.OPT.IGNORE:
+                    return
 
             except EllipsisException:
 
-                if self.options["missing_keys"] is self.OPT.KEY_ALLOW:
+                if self.options["missing_keys"] is self.OPT.ALLOW:
                     '''
                     allow key even if doesnt exist in the interface.
                     Pass and let program to save key-value
                     '''
                     pass
-                elif self.options["missing_keys"] is self.OPT.KEY_IGNORE \
-                        or self.options["missing_keys"] is self.OPT.KEY_THROW:
+                elif self.options["missing_keys"] is self.OPT.IGNORE \
+                        or self.options["missing_keys"] is self.OPT.THROW:
                     '''
                     dissallow / filter key which is not available in
                     the interface. Add key to the list of dissallowed
@@ -133,7 +140,7 @@ class Idict(collections.defaultdict):
                     interrupt here and prevent __setitem__
                     to set a value for that key
                     '''
-                    if self.options["missing_keys"] is self.OPT.KEY_THROW:
+                    if self.options["missing_keys"] is self.OPT.THROW:
                         raise KeyNotAllowedException(k, lambda: Utils.map_path_to_string(element_path))
 
                     return
@@ -181,14 +188,17 @@ class Idict(collections.defaultdict):
                     raise EllipsisException(0)
 
             except ValueNotAllowedException as ex:
-                raise ex
+                if self.options["missing_keys"] is self.OPT.THROW:
+                    raise ex
+                elif self.options["missing_keys"] is self.OPT.IGNORE:
+                    return
 
             except EllipsisException:
-                if self.options["missing_keys"] is self.OPT.KEY_ALLOW:
+                if self.options["missing_keys"] is self.OPT.ALLOW:
                     pass
-                elif self.options["missing_keys"] is self.OPT.KEY_IGNORE:
+                elif self.options["missing_keys"] is self.OPT.IGNORE:
                     return
-                elif self.options["missing_keys"] is self.OPT.KEY_THROW:
+                elif self.options["missing_keys"] is self.OPT.THROW:
                     raise KeyNotAllowedException(k, lambda: Utils.map_path_to_string(element_path))
 
             self.id_key[ids] = k
@@ -246,3 +256,7 @@ class Idict(collections.defaultdict):
                 raise MandatoryKeyValueException(msg)
 
         return True
+
+    def hash_code(self) -> str:
+        encoded_bytes = base64.b64encode(self.__repr__().encode("utf-8"))
+        return str(encoded_bytes, "utf-8")

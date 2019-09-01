@@ -4,7 +4,7 @@ from lib.exceptions import ValueNotAllowedException
 from lib.idict import Idict
 
 
-class TestOverwritteStructure(unittest.TestCase):
+class TestOverwritteStructureThrow(unittest.TestCase):
 
     def test_overwritte_defaults1(self):
 
@@ -24,8 +24,7 @@ class TestOverwritteStructure(unittest.TestCase):
         }
 
         opts = {
-            "missing_keys": Idict.OPT.KEY_THROW,
-            "ellipsis_as_mandatory": True
+            "missing_keys": Idict.OPT.THROW
         }
 
         dict6 = Idict(pattern, opts)
