@@ -1,8 +1,8 @@
+# from __future__ import annotations
 import base64
 import collections
 from enum import Enum
 from typing import Any, Dict, List, Union, Optional
-
 from lib import KT, KV
 from lib.exceptions import EllipsisException, KeyOnNonDictException, \
     KeyNotAllowedException, MandatoryKeyValueException, \
@@ -30,7 +30,7 @@ class Idict(collections.defaultdict):
 
     prev_id = 0
 
-    def __init__(self, kargs: Dict[KT, KV], options: Optional[Dict[str, Union[OPT, bool]]] = None, deep=0):
+    def __init__(self, kargs: Dict[KT, KV], options: Optional[Dict[str, Union[OPT, bool]]] = None, deep=0) -> None:
 
         opt = options if options is not None else {}
         self.options = {**Idict.default_options, **opt}
@@ -55,18 +55,18 @@ class Idict(collections.defaultdict):
             self.__init_pattern()
 
     def _construct(self,
-                   prev_id,
-                   locked_keys: Dict[int, List[Any]],
+                   prev_id: int,
+                   locked_keys: Dict[int, List[str]],
                    dependencies: Dict[int, int],
                    id_key: Dict[int, Any],
                    options: Dict[str, Union[OPT, bool]]
-                   ):
+                   ) -> 'Idict':
 
         self.options = options
 
         self.dependencies: Dict[int, int] = dependencies
 
-        self.id_key: Dict[int, Any] = id_key
+        self.id_key: Dict[int, KT] = id_key
 
         self.prev_id = prev_id
 
@@ -74,23 +74,21 @@ class Idict(collections.defaultdict):
 
         return self
 
-    def __init_pattern(self):
+    def __init_pattern(self) -> None:
         Idict.__recucrive_init(self.kargs, self.options, self)
-        pass
 
-    def __setitem__(self, k, v) -> None:
+    def __setitem__(self, k: KT, v: KV) -> None:
 
-        ids = id(self)
+        ids: int = id(self)
+
+        element_path_str: List[KT] = []
 
         if not isinstance(v, Idict):
-
-            element_path = []
-
             try:
                 element_path = Utils.find_xpath(self.dependencies, self.prev_id)
                 try:
-                    element_path = list(map(lambda x: self.id_key[x], element_path))
-                    element_path.append(k)
+                    element_path_str = list(map(lambda x: self.id_key[x], element_path))
+                    element_path_str.append(k)
                 except KeyError:
                     '''
                     key 0, root parent, just
@@ -98,14 +96,14 @@ class Idict(collections.defaultdict):
                     '''
                     pass
 
-                if len(element_path) == 1 and element_path[0] == 0 and k not in self.kargs.keys():
+                if len(element_path_str) == 1 and element_path_str[0] == 0 and k not in self.kargs.keys():
                     '''
                     root element is not available in the interface
                     '''
                     raise EllipsisException(0)
 
                 # throws EllipsisException
-                path_value: Union[Dict[KT, KV], KV] = Utils.get_by_path(self.kargs, element_path)
+                path_value: Union[Dict[KT, KV], KV] = Utils.get_by_path(self.kargs, element_path_str)
 
                 # throws ValueNotAllowedException
                 Utils.verify_overwritting_dect_type(path_value, k, v)
@@ -141,12 +139,12 @@ class Idict(collections.defaultdict):
                     to set a value for that key
                     '''
                     if self.options["missing_keys"] is self.OPT.THROW:
-                        raise KeyNotAllowedException(k, lambda: Utils.map_path_to_string(element_path))
+                        raise KeyNotAllowedException(k, lambda: Utils.map_path_to_string(element_path_str))
 
                     return
 
             except KeyOnNonDictException as kex:
-                raise Utils.humanize_dict_error(kex, element_path)
+                raise Utils.humanize_dict_error(kex, element_path_str)
 
         elif ids in self.locked_keys.keys() and k in self.locked_keys[ids]:
             '''
@@ -165,8 +163,8 @@ class Idict(collections.defaultdict):
             element_path = Utils.find_xpath(self.dependencies, self.prev_id)
 
             try:
-                element_path = list(map(lambda x: self.id_key[x], element_path))
-                element_path.append(k)
+                element_path_str = list(map(lambda x: self.id_key[x], element_path))
+                element_path_str.append(k)
             except KeyError:
                 '''
                 key 0, root parent, just
@@ -176,12 +174,12 @@ class Idict(collections.defaultdict):
 
             try:
 
-                path_value = Utils.get_by_path(self.kargs, element_path)
+                path_value = Utils.get_by_path(self.kargs, element_path_str)
 
                 # throws ValueNotAllowedException
                 Utils.verify_overwritting_dect_type(path_value, k, v)
 
-                if len(element_path) == 1 and element_path[0] == 0 and k not in self.kargs.keys():
+                if len(element_path_str) == 1 and element_path_str[0] == 0 and k not in self.kargs.keys():
                     '''
                     root element is not available in the interface
                     '''
@@ -199,7 +197,7 @@ class Idict(collections.defaultdict):
                 elif self.options["missing_keys"] is self.OPT.IGNORE:
                     return
                 elif self.options["missing_keys"] is self.OPT.THROW:
-                    raise KeyNotAllowedException(k, lambda: Utils.map_path_to_string(element_path))
+                    raise KeyNotAllowedException(k, lambda: Utils.map_path_to_string(element_path_str))
 
             self.id_key[ids] = k
 
@@ -210,14 +208,14 @@ class Idict(collections.defaultdict):
 
         super().__setitem__(k, v)
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return repr(dict(self))
 
-    def __str__(self):
+    def __str__(self) -> str:
         return "container:" + str(id(self)) + " dict: " + str(dict(self))
 
     @staticmethod
-    def __recucrive_init(pattern: Dict[str, Any], options: Dict[str, Union[OPT, bool]], root: 'Idict'):
+    def __recucrive_init(pattern: Dict[str, Any], options: Dict[str, Union[OPT, bool]], root: 'Idict') -> Any:
         """
         __recucrive_init
 
@@ -235,7 +233,6 @@ class Idict(collections.defaultdict):
                 if i not in root:
                     root[i] = Idict(pattern[i], options)
                     Idict.__recucrive_init(pattern[i], options, root[i])
-                    pass
                 else:
                     Idict.__recucrive_init(pattern[i], options, root[i])
             else:
