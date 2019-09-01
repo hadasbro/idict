@@ -35,14 +35,14 @@ desired_default_structure = {
 }
 
 options = {
-    "missing_keys": Idict.OPT.THROW, # Idict.OPT.ALLOW | Idict.OPT.IGNORE | Idict.OPT.THROW
-    "ellipsis_as_mandatory": True # True | False
+    "missing_keys": Idict.OPT.THROW,
+    "ellipsis_as_mandatory": True
 }
 
 my_dict = Idict(desired_default_structure, options)
 
 my_dict['a'] = 1
-# ...
+
 ```
 
 #### Options
