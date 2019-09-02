@@ -70,7 +70,8 @@ See examples below.
   
         '''
         KeyNotAllowedException
-        [Key Error] You are trying to set value for key <non_existing> for your Idict <your_dict:Idict> but this key is disallowed and doesnt exist in the provided interface
+        [Key Error] You are trying to set value for key <non_existing> for your Idict 
+        <your_dict:Idict> but this key is disallowed and doesnt exist in the provided interface
         '''
     ```
 
