@@ -3,7 +3,18 @@ from typing import TypeVar
 
 
 class Stringifable(ABC):
-    pass
+    """
+    Stringifable
+    """
+
+    def __str__(self) -> str:
+        """
+        __str__
+
+        Returns:
+            str
+        """
+        pass
 
 
 KT = TypeVar('KT', str, Stringifable)

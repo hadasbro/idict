@@ -33,10 +33,7 @@ class TestAdditionalKeysIgnore(unittest.TestCase):
             TestAdditionalKeysIgnore.dict1['bither_non_existing'] = 4
             TestAdditionalKeysIgnore.dict1['c']['cc1']['ccc1'] = 5
 
-            print(repr(TestAdditionalKeysIgnore.dict1))
         except Exception as ex:
-            print(ex)
-            print("EEEEEEEEEEEEEEEEEEEEE")
             self.assertTrue(False)
         finally:
             obj_hash = "eydhJzogTm9uZSwgJ2InOiB7J2JiMSc6IE5vb" \

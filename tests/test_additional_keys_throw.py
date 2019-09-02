@@ -32,6 +32,7 @@ class TestAdditionalKeysThrow(unittest.TestCase):
         try:
             TestAdditionalKeysThrow.dict1['non_existing'] = 1
         except KeyNotAllowedException as ex:
+            print(ex)
             correct_key = str(ex).find("<non_existing>")
             res = correct_key != -1
         finally:

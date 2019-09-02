@@ -5,19 +5,51 @@ from lib.exceptions import KeyOnNonDictException, EllipsisException, GeneralExce
 
 
 class Utils:
+    """
+    Utils class
+    """
 
     @staticmethod
     def map_path_to_string(path: Optional[List[str]] = None) -> str:
+        """
+        map_path_to_string
+
+        Args:
+            path (Optional[List[str]]): pthto map
+
+        Returns:
+            str: path
+        """
         path = path if path is not None else []
         return "".join(list(map(lambda el: "[{}]".format(str(el)), path)))
 
     @staticmethod
     def humanize_path_error(path: Optional[Dict[int, int]] = None) -> KeyOnNonDictException:
+        """
+        humanize_path_error
+
+        Args:
+            path (Optional[Dict[int, int]]): path to map
+
+        Returns:
+            KeyOnNonDictException: exception
+        """
         pass
 
     @staticmethod
     def humanize_dict_error(exc: KeyOnNonDictException,
                             path: Optional[List[str]] = None) -> KeyOnNonDictException:
+        """
+        humanize_dict_error
+
+        Args:
+            exc (KeyOnNonDictException): exception to humanize
+            path (Optional[List[str]]): path
+
+        Returns:
+            KeyOnNonDictException: exception
+            GeneralException: if path is None
+        """
 
         rinfo: str = ""
 
@@ -45,10 +77,30 @@ class Utils:
 
     @staticmethod
     def find_xpath(acum: Dict[int, int], element: int) -> List[int]:
+        """
+        find_xpath
+
+        Args:
+            acum (Dict[int, int]): dictionary path
+            element (int): element to find
+
+        Returns:
+            List[int]: list of IDs
+        """
 
         acum_result: List[int] = []
 
         def find_recursively(acumi: Dict[int, int], el: int) -> Any:
+            """
+            find_recursively inner function
+            Args:
+                acumi (Dict[int, int]): path
+                el (int): element
+
+            Returns:
+                Any
+
+            """
             try:
                 al: Any = acumi[el]
                 if al > 0:
@@ -67,9 +119,22 @@ class Utils:
     @staticmethod
     def find_element(
             nested_dict: Dict[KT, KV],
-            value: KV, apath: Tuple[KT, ...] = (),
+            value: KV,
+            apath: Tuple[KT, ...] = (),
             comparison_type: str = "="
     ) -> Union[Tuple[KT, ...], None]:
+        """
+        find_element
+
+        Args:
+            nested_dict (Dict[KT, KV]): dictionary to search in
+            value (KV): value to search
+            apath (Tuple[KT, ...]): path tuple
+            comparison_type (str): comparison type
+
+        Returns:
+            Union[Tuple[KT, ...]: element or tuple of elements
+        """
         for key, val in nested_dict.items():
             path = apath + (key,)
             if comparison_type == "is":
@@ -86,7 +151,22 @@ class Utils:
         return None
 
     @staticmethod
-    def get_by_path(idict: Dict[KT, KV], key_path) -> Union[Dict[KT, KV], KV]:
+    def get_by_path(idict: Dict[KT, KV], key_path: Union[List[KT], KT]) -> Union[Dict[KT, KV], KV]:
+        """
+        get_by_path
+
+        Args:
+            idict (Dict[KT, KV]):
+            key_path (KT): key path
+
+        Returns:
+            Union[Dict[KT, KV], KV]: dictionary result
+
+        Raises:
+            EllipsisException: if there is no key
+            KeyOnNonDictException: if attribute error
+
+        """
         dictval: Dict[KT, KV] = idict
         for k in key_path:
             try:
@@ -109,11 +189,26 @@ class Utils:
 
     @staticmethod
     def verify_overwritting_dect_type(path_value: Union[Dict[KT, KV], KV], key: KT, value: KV) -> bool:
+        """
+        verify_overwritting_dect_type
+
+        Args:
+            path_value (Union[Dict[KT, KV], KV]): path
+            key (KT): key
+            value (KV): value
+
+        Returns:
+            bool: True if OK, exception if not
+
+        Raises:
+            ValueNotAllowedException: if there is no val
+
+        """
 
         if not isinstance(path_value, dict):
             return True
 
         if key in path_value and isinstance(path_value[key], dict) and not isinstance(value, dict):
-            raise ValueNotAllowedException(path_value, key, value)
+            raise ValueNotAllowedException(path_value[key], key, value)
 
         return True

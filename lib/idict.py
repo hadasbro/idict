@@ -11,8 +11,28 @@ from lib.utils import Utils
 
 
 class Idict(collections.defaultdict):
+    """
+    Idict - main dynamic dictionary class
+
+    Note:
+        Idict obects are initiated recursively bu lambda expression
+        lambda: self.
+                __class__(kargs, options, deep).
+                _construct(id(self), self.locked_keys, self.dependencies, self.id_key, self.options)
+
+    Attributes:
+        options (Optional[Dict[str, Union[OPT, bool]]]): options,
+        default {missing_keys: OPT.ALLOW, "ellipsis_as_mandatory": True}
+        dependencies (Dict[int, int]): denendencies between object id : id2
+        locked_keys (Dict[int, List[KT]]): locked keys, parameter used internally
+        id_key (Dict[int, KT]): objetc's id associated with key in the dict
+
+    """
 
     class OPT(Enum):
+        """
+        OPT options enum
+        """
         ALLOW = 1
         IGNORE = 2
         THROW = 3
@@ -30,8 +50,24 @@ class Idict(collections.defaultdict):
 
     prev_id = 0
 
-    def __init__(self, kargs: Dict[KT, KV], options: Optional[Dict[str, Union[OPT, bool]]] = None, deep=0) -> None:
+    def __init__(
+            self,
+            kargs: Dict[KT, KV],
+            options: Optional[Dict[str, Union[OPT, bool]]] = None,
+            deep: int = 0
+    ) -> None:
+        """
+        __init__
 
+        Args:
+            kargs (Dict[KT, KV]): specified, expected, default dictionary
+            options (Optional[Dict[str, Union[OPT, bool]]]): opts
+            deep (int): obj deep
+
+        Returns:
+            None
+
+        """
         opt = options if options is not None else {}
         self.options = {**Idict.default_options, **opt}
 
@@ -41,9 +77,9 @@ class Idict(collections.defaultdict):
 
         collections.defaultdict.__init__(
             self,
-            lambda: self.
-                __class__(kargs, options, deep).
-                _construct(id(self), self.locked_keys, self.dependencies, self.id_key, self.options)
+            lambda: self.__class__(kargs, options, deep)._construct(
+                    id(self), self.locked_keys, self.dependencies, self.id_key, self.options
+            )
         )
 
         if deep == 0:
@@ -61,6 +97,19 @@ class Idict(collections.defaultdict):
                    id_key: Dict[int, KT],
                    options: Dict[str, Union[OPT, bool]]
                    ) -> 'Idict':
+        """
+        _construct
+
+        Args:
+            prev_id (int): prev_id
+            locked_keys (Dict[int, List[KT]]): locked_keys
+            dependencies (Dict[int, int]): dependencies
+            id_key (Dict[int, KT]): id_key
+            options (Dict[str, Union[OPT, bool]]): options
+
+        Returns:
+            Idict: self class object
+        """
 
         self.options = options
 
@@ -75,10 +124,34 @@ class Idict(collections.defaultdict):
         return self
 
     def __init_pattern(self) -> None:
+        """
+        __init_pattern
+
+        Returns:
+            None
+
+        """
         Idict.__recucrive_init(self.kargs, self.options, self)
 
     def __setitem__(self, k: KT, v: KV) -> None:
+        """
+        __setitem__
 
+        Args:
+            k (KT): key
+            v (KV): value
+
+        Returns:
+            None
+
+        Raises:
+            EllipsisException: if used root element is not available in the interface
+            ValueNotAllowedException: if we dont accept values from outside provided pattern
+            and we have such value set in the code
+            KeyNotAllowedException: if we have value set for disallowed key
+            KeyOnNonDictException: if we are trying to set key-val pair on non-dict element
+
+        """
         ids: int = id(self)
 
         if not isinstance(v, Idict):
@@ -210,9 +283,21 @@ class Idict(collections.defaultdict):
         super().__setitem__(k, v)
 
     def __repr__(self) -> str:
+        """
+        __repr__
+
+        Returns:
+            str: repr value
+        """
         return repr(dict(self))
 
     def __str__(self) -> str:
+        """
+        __str__
+
+        Returns:
+            str: str obj representation
+        """
         return "container:" + str(id(self)) + " dict: " + str(dict(self))
 
     @staticmethod
@@ -225,9 +310,13 @@ class Idict(collections.defaultdict):
         it would be done normally uppon statement as below
         dict['a']['b']['c'] = 1
 
-        :param pattern:
-        :param root:
-        :return:
+        Args:
+            pattern (Dict[str, Any]): pattern/expected dictionary structure
+            options (Dict[str, Union[OPT, bool]]): opts
+            root (Idict): root element object
+
+        Returns:
+
         """
         for i in pattern:
             if isinstance(pattern[i], dict):
@@ -240,7 +329,16 @@ class Idict(collections.defaultdict):
                 root[i] = pattern[i]
 
     def validate(self) -> bool:
+        """
+        validate
 
+        Returns:
+            bool: True if all OK, otherwise raises MandatoryKeyValueException
+
+        Raises:
+            MandatoryKeyValueException: if we have any mandatory key with no value settled
+
+        """
         if self.options["ellipsis_as_mandatory"] is True:
 
             path = Utils.find_element(dict(self), ...)
@@ -256,5 +354,11 @@ class Idict(collections.defaultdict):
         return True
 
     def hash_code(self) -> str:
+        """
+        hash_code
+
+        Returns:
+            str
+        """
         encoded_bytes = base64.b64encode(self.__repr__().encode("utf-8"))
         return str(encoded_bytes, "utf-8")
