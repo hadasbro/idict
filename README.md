@@ -60,7 +60,21 @@ possible options: `Idict.OPT.`
 - `IGNORE` - ignore keys not available in specified interface and allow only specified keys. Always keep the same, desired structure. Ignore tries to change dictionary structure.
 - `THROW` - throw an exception `KeyNotAllowedException` if someone tries to set key-value for unspecified key. 
 Throw an exception `ValueNotAllowedException` if someone tries to change specified key-value structure. 
-See example below.
+See examples below.
+    
+    Key not allowed:
+    
+    ```python
+        my_dict = Idict({'a': None, 'b': {'bb1': None}}, {"missing_keys": Idict.OPT.THROW})
+        my_dict['non_existing_key'] = 123
+  
+        '''
+        KeyNotAllowedException
+        [Key Error] You are trying to set value for key <non_existing> for your Idict <your_dict:Idict> but this key is disallowed and doesnt exist in the provided interface
+        '''
+    ```
+
+    Trying to overwritte expected structure and set integer where dictionary should be:
     
     ```python
     my_dict = Idict({'a': {'aa': {'aaa': 1}}}, options={"missing_keys": Idict.OPT.THROW})
