@@ -16,7 +16,7 @@ class GeneralException(Exception):
         Returns:
             None
         """
-        super().__init__(msg)
+        super().__init__(self, msg)
 
 
 class EllipsisException(Exception):
@@ -34,7 +34,7 @@ class EllipsisException(Exception):
         Returns:
             None
         """
-        super().__init__(str(msg))
+        super().__init__(self, str(msg))
 
 
 class KeyOnNonDictException(Exception):
@@ -55,7 +55,7 @@ class KeyOnNonDictException(Exception):
         """
         self.key: str = key
         self.msg: str = msg
-        super().__init__(key, msg)
+        super().__init__(self, msg)
 
     def __str__(self) -> str:
         """
@@ -86,7 +86,7 @@ class MandatoryKeyValueException(Exception):
             None
         """
         self.msg: str = msg
-        super().__init__(msg)
+        super().__init__(self, msg)
 
     def __str__(self) -> str:
         """
@@ -134,7 +134,7 @@ class KeyNotAllowedException(Exception):
                        "for your Idict <your_dict:Idict>{} but this key is disallowed " \
                        "and doesnt exist in the provided interface".format(key, ltry)
 
-        super().__init__(message)
+        super().__init__(self, message)
 
 
 class ValueNotAllowedException(Exception):
@@ -158,4 +158,4 @@ class ValueNotAllowedException(Exception):
                        "but in provided interface there is a dictionary under this key - " \
                        "<interface>{}. You cannot change expected objects structure".format(value, key, path_value)
 
-        super().__init__(message)
+        super().__init__(self, message)
