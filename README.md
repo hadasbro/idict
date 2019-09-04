@@ -274,6 +274,9 @@ my_dict.validate()
         
     ```
 
+## Authors
+
+* **Slawomir Hadas** - *author* - [Github](https://github.com/hadasbro)
 
 ## See more
 See `./tests` for more examples
