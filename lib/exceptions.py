@@ -34,7 +34,7 @@ class EllipsisException(Exception):
         Returns:
             None
         """
-        super().__init__(self, str(msg))
+        super().__init__(str(msg))
 
 
 class KeyOnNonDictException(Exception):

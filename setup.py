@@ -1,19 +1,40 @@
-from io import open
-from setuptools import setup
+from pathlib import Path
+from setuptools import find_packages, setup
+
+
+ROOT = Path(__file__).parent
+README = (ROOT / "README.md").read_text(encoding="utf-8")
+
 
 setup(
-    name='Idict',
-    version='1.0.1-SNAPSHOT',
-    author='Slawomir Hadas',
-    author_email='slawomir.hadas@yahoo.com',
-    packages=['idict'],
-    package_data={
-        'idict': [],
-    },
+    name="idict",
+    version="1.0.1.dev1",
+    author="Slawomir Hadas",
+    author_email="slawomir.hadas@yahoo.com",
+    description="Extended defaultdict with declared structure and validation rules",
+    license="GPL-3.0-only",
+    long_description=README,
+    long_description_content_type="text/markdown",
+    url="https://github.com/hadasbro/idict",
+    packages=find_packages(exclude=("tests", "tests.*")),
+    include_package_data=True,
     install_requires=[],
-    python_requires='>=3.7',
-    description='Extended default dict with settable placeholder for default values',
-    long_description=open('README.md', encoding='utf-8').readlines()[2],
-    keywords=['dict', 'defaultdict', 'python'],
-    homepage='https://github.com/hadasbro/idict',
+    python_requires=">=3.7",
+    keywords=["dict", "defaultdict", "validation", "schema"],
+    classifiers=[
+        "Development Status :: 4 - Beta",
+        "Intended Audience :: Developers",
+        "License :: OSI Approved :: GNU General Public License v3 (GPLv3)",
+        "Programming Language :: Python :: 3",
+        "Programming Language :: Python :: 3.7",
+        "Programming Language :: Python :: 3.8",
+        "Programming Language :: Python :: 3.9",
+        "Programming Language :: Python :: 3.10",
+        "Programming Language :: Python :: 3.11",
+        "Topic :: Software Development :: Libraries :: Python Modules",
+    ],
+    project_urls={
+        "Source": "https://github.com/hadasbro/idict",
+        "Issues": "https://github.com/hadasbro/idict/issues",
+    },
 )
