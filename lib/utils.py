@@ -34,7 +34,16 @@ class Utils:
         Returns:
             KeyOnNonDictException: exception
         """
-        pass
+        if path is None:
+            return KeyOnNonDictException(
+                msg="[Element Error] Invalid path while traversing dictionary structure."
+            )
+
+        seq = list(path.values())
+        mapped = Utils.map_path_to_string([str(p) for p in seq])
+        return KeyOnNonDictException(
+            msg="[Element Error] Invalid path while traversing dictionary structure at {}.".format(mapped)
+        )
 
     @staticmethod
     def humanize_dict_error(exc: KeyOnNonDictException,

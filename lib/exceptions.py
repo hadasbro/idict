@@ -16,7 +16,7 @@ class GeneralException(Exception):
         Returns:
             None
         """
-        super().__init__(self, msg)
+        super().__init__(msg)
 
 
 class EllipsisException(Exception):
@@ -55,7 +55,7 @@ class KeyOnNonDictException(Exception):
         """
         self.key: str = key
         self.msg: str = msg
-        super().__init__(self, msg)
+        super().__init__(msg)
 
     def __str__(self) -> str:
         """
@@ -86,7 +86,7 @@ class MandatoryKeyValueException(Exception):
             None
         """
         self.msg: str = msg
-        super().__init__(self, msg)
+        super().__init__(msg)
 
     def __str__(self) -> str:
         """

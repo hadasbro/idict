@@ -13,9 +13,17 @@ structure for your dictionary and use it as normal dictionary then.
 
 ## Install
 
-Install from sources.
+Install from PyPI:
 
-First stable and tested version will be added to PyPi soon.
+```bash
+pip install idict
+```
+
+or from sources:
+
+```bash
+pip install .
+```
 
 ---
 
@@ -29,6 +37,8 @@ You can also specify required and/or default values for specified keys.
 
 #### General usage
 ```python
+from idict import Idict
+
 desired_default_structure = {
     'a': 1,
     'c': None

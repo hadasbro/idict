@@ -14,9 +14,9 @@ class Stringifable(ABC):
         Returns:
             str
         """
-        pass
+        raise NotImplementedError()
 
 
-KT = TypeVar('KT', str, Stringifable)
-KV = TypeVar('KV')
-A = TypeVar('A', str, str)
+KT = TypeVar("KT", str, Stringifable)
+KV = TypeVar("KV")
+A = TypeVar("A", str, Stringifable)
