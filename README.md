@@ -2,6 +2,7 @@
 
 ![picture](https://img.shields.io/badge/Python-3.7.0%2B-brightgreen)
 ![picture](https://img.shields.io/badge/License-GNU%20GPL%203.0-blue)
+![picture](https://img.shields.io/pypi/v/idict-schema)
 
 **Dictionary with declared structure in Python**
 
@@ -13,7 +14,7 @@ structure for your dictionary and use it as normal dictionary then.
 
 ## Install
 
-Install from PyPI:
+Install latest stable release from production PyPI:
 
 ```bash
 pip install idict-schema
