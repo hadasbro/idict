@@ -20,6 +20,9 @@ Install latest stable release from production PyPI:
 pip install idict-schema
 ```
 
+Released to PyPI on 2026-10-10.
+Before this release, installation was available only from sources.
+
 or from sources:
 
 ```bash
