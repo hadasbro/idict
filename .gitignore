@@ -1,10 +1,27 @@
-__pycache__
-dist
-build
+__pycache__/
+*.py[cod]
+*.swp
+
+# Build and packaging artifacts
+build/
+dist/
+*.egg-info/
+.eggs/
+pip-wheel-metadata/
+
+# Virtual environments
+venv/
+.venv/
+
+# Tool caches and reports
+.mypy_cache/
+.pytest_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+
+# OS/editor temp files
 .tmp
 .DS_Store
-*.pyc
-*.swp
-venv/
 .idea/
-.mypy_cache/
+.vscode/

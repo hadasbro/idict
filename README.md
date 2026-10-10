@@ -16,13 +16,19 @@ structure for your dictionary and use it as normal dictionary then.
 Install from PyPI:
 
 ```bash
-pip install idict
+pip install idict-schema
 ```
 
 or from sources:
 
 ```bash
 pip install .
+```
+
+After installation, import from:
+
+```python
+from idict import Idict
 ```
 
 ---
@@ -34,6 +40,16 @@ action for non desired usage e.g. specify action if someone
 uses unexpected key or value.
 
 You can also specify required and/or default values for specified keys.
+
+## 1.0 Contract
+
+- Distribution name: `idict-schema`
+- Import path: `idict` (`from idict import Idict`)
+- `missing_keys = THROW` is enforced for `[] =`, `update`, `setdefault`, `|`, and `|=`
+- Mandatory keys (`...`) are validated against the declared schema (`validate()`)
+- `copy.copy(idict_obj)` is supported
+- `pickle` serialization is currently not supported and raises a clear `TypeError`
+- `hash_code()` returns Base64 of `repr(dict(...))` (it is not a cryptographic hash)
 
 #### General usage
 ```python

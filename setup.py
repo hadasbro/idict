@@ -7,10 +7,10 @@ README = (ROOT / "README.md").read_text(encoding="utf-8")
 
 
 setup(
-    name="idict",
-    version="1.0.1.dev1",
+    name="idict-schema",
+    version="1.0.0",
     author="Slawomir Hadas",
-    author_email="slawomir.hadas@yahoo.com",
+    author_email="slawekgithub1218@gmail.com",
     description="Extended defaultdict with declared structure and validation rules",
     license="GPL-3.0-only",
     long_description=README,
@@ -22,7 +22,7 @@ setup(
     python_requires=">=3.7",
     keywords=["dict", "defaultdict", "validation", "schema"],
     classifiers=[
-        "Development Status :: 4 - Beta",
+        "Development Status :: 5 - Production/Stable",
         "Intended Audience :: Developers",
         "License :: OSI Approved :: GNU General Public License v3 (GPLv3)",
         "Programming Language :: Python :: 3",

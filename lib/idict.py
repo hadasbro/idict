@@ -1,6 +1,7 @@
 # from __future__ import annotations
 import base64
 import collections
+import copy
 from enum import Enum
 from typing import Any, Dict, List, Union, Optional
 from lib import KT, KV
@@ -71,13 +72,19 @@ class Idict(collections.defaultdict):
         opt = options if options is not None else {}
         self.options = {**Idict.default_options, **opt}
 
-        self.kargs = kargs
+        self.kargs = copy.deepcopy(kargs)
 
         self.block_key = None
 
+        if deep == 0:
+            # Keep recursive bookkeeping isolated per root instance.
+            self.dependencies = {}
+            self.locked_keys = {}
+            self.id_key = {}
+
         collections.defaultdict.__init__(
             self,
-            lambda: self.__class__(kargs, options, deep)._construct(
+            lambda: self.__class__(self.kargs, self.options, deep)._construct(
                     id(self), self.locked_keys, self.dependencies, self.id_key, self.options
             )
         )
@@ -182,6 +189,10 @@ class Idict(collections.defaultdict):
                 # throws ValueNotAllowedException
                 Utils.verify_overwritting_dect_type(path_value, k, v)
 
+                if isinstance(path_value, dict) and k in path_value \
+                        and isinstance(path_value[k], dict) and isinstance(v, dict):
+                    raise ValueNotAllowedException(path_value[k], k, v)
+
             except ValueNotAllowedException as ex:
                 if self.options["missing_keys"] is self.OPT.THROW:
                     raise ex
@@ -282,6 +293,58 @@ class Idict(collections.defaultdict):
 
         super().__setitem__(k, v)
 
+    def update(self, other: Optional[Any] = None, **kwargs: Any) -> None:
+        """
+        update
+
+        Uses __setitem__ for every assignment to preserve Idict constraints.
+        """
+        if other is not None:
+            items = other.items() if hasattr(other, "items") else other
+            for k, v in items:
+                self[k] = v
+
+        for k, v in kwargs.items():
+            self[k] = v
+
+    def setdefault(self, key: KT, default: Optional[KV] = None) -> Optional[KV]:
+        """
+        setdefault
+
+        Uses __setitem__ for first assignment to preserve Idict constraints.
+        """
+        if key in self:
+            return self[key]
+
+        self[key] = default
+        return self[key]
+
+    def __ior__(self, other: Any) -> 'Idict':
+        self.update(other)
+        return self
+
+    def __or__(self, other: Any) -> 'Idict':
+        copied = copy.copy(self)
+        copied.update(other)
+        return copied
+
+    def __ror__(self, other: Any) -> 'Idict':
+        copied = Idict(self.kargs, self.options)
+        copied.update(other)
+        copied.update(dict(self))
+        return copied
+
+    def __copy__(self) -> 'Idict':
+        copied = Idict(self.kargs, self.options)
+        self.__merge_data(copied, self.__to_plain_data(dict(self)))
+        return copied
+
+    def __deepcopy__(self, memo: Dict[int, Any]) -> 'Idict':
+        return self.__copy__()
+
+    def __reduce__(self) -> Any:
+        raise TypeError("Idict does not support pickle serialization yet. Use dict(idict) instead.")
+
     def __repr__(self) -> str:
         """
         __repr__
@@ -326,7 +389,7 @@ class Idict(collections.defaultdict):
                 else:
                     Idict.__recucrive_init(pattern[i], options, root[i])
             else:
-                root[i] = pattern[i]
+                root[i] = copy.deepcopy(pattern[i])
 
     def validate(self) -> bool:
         """
@@ -340,18 +403,60 @@ class Idict(collections.defaultdict):
 
         """
         if self.options["ellipsis_as_mandatory"] is True:
-
-            path = Utils.find_element(dict(self), ...)
-
-            if path is None:
-                return True
-            else:
-                msg: str = "Key value for key <your_idict: Idict>{} is mandatory. " \
-                           "Set value for this key or set default value in provided " \
-                           "interface. ".format(Utils.map_path_to_string(list(path)))
-                raise MandatoryKeyValueException(msg)
+            self.__validate_mandatory_against_schema(self.kargs, dict(self), [])
 
         return True
+
+    @classmethod
+    def __validate_mandatory_against_schema(
+            cls,
+            schema: Dict[KT, KV],
+            payload: Dict[KT, KV],
+            path: List[KT]
+    ) -> None:
+        for key, schema_value in schema.items():
+            new_path = path + [key]
+
+            if schema_value is ...:
+                if key not in payload or payload.get(key) is ...:
+                    msg: str = "Key value for key <your_idict: Idict>{} is mandatory. " \
+                               "Set value for this key or set default value in provided " \
+                               "interface. ".format(Utils.map_path_to_string(new_path))
+                    raise MandatoryKeyValueException(msg)
+                continue
+
+            if isinstance(schema_value, dict):
+                nested_payload: Dict[KT, KV] = {}
+                if key in payload and isinstance(payload[key], dict):
+                    nested_payload = payload[key]
+                cls.__validate_mandatory_against_schema(schema_value, nested_payload, new_path)
+
+    @classmethod
+    def __to_plain_data(cls, value: Any) -> Any:
+        if isinstance(value, Idict):
+            value = dict(value)
+
+        if isinstance(value, dict):
+            return {k: cls.__to_plain_data(v) for k, v in value.items()}
+
+        if isinstance(value, list):
+            return [cls.__to_plain_data(v) for v in value]
+
+        if isinstance(value, tuple):
+            return tuple(cls.__to_plain_data(v) for v in value)
+
+        if isinstance(value, set):
+            return {cls.__to_plain_data(v) for v in value}
+
+        return copy.deepcopy(value)
+
+    @classmethod
+    def __merge_data(cls, target: 'Idict', source: Dict[Any, Any]) -> None:
+        for key, value in source.items():
+            if isinstance(value, dict) and key in target and isinstance(target[key], Idict):
+                cls.__merge_data(target[key], value)
+            else:
+                target[key] = value
 
     def hash_code(self) -> str:
         """
